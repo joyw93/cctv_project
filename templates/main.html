@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<div class="dropdown">
+
+
+  <button onclick="location.href='{{url_for('video', name=data0['cctvname'])}}'" class="btn btn-secondary" type="button" id="src" aria-expanded="false">
+    {{data0['cctvname']}}
+  </button>
+
+
+</div>
+
+
+{% endblock %}
