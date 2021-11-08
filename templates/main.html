@@ -1,16 +1,67 @@
-{% extends 'base.html' %}
-{% block content %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.88.1">
+    <title>Heroes · Bootstrap v5.1</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/heroes/">
+
+    
+
+    <!-- Bootstrap core CSS -->
+<link href="/static/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="heroes.css" rel="stylesheet">
+  </head>
+  <body>
+    
+<main>
+  
+  <div class="container col-xxl-8 px-4 py-5">
+    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+      <div class="col-10 col-sm-8 col-lg-6">
+        <img src="/static/images/mainpage.PNG" class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" loading="lazy">
+      </div>
+      <div class="col-lg-6">
+        <h1 class="display-5 fw-bold lh-1 mb-3">고속도로 차량 통행량 분석 사이트</h1>
+        <p class="lead">YOLOv5 와 국가교통정보센터의 CCTV API를 이용해서 전국 고속도로의 일반승용차 / 버스 / 화물트럭 별 통행량을 실시간으로 알려주는 웹사이트입니다.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+          <button onclick="location.href='{{url_for('select')}}';" type="button" class="btn btn-primary btn-lg px-4 me-md-2">고속도로CCTV</button>
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">국도CCTV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+</main>
 
 
-<div class="dropdown">
+    <script src="/static/dist/js/bootstrap.bundle.min.js"></script>
 
-
-  <button onclick="location.href='{{url_for('video', name=data0['cctvname'])}}'" class="btn btn-secondary" type="button" id="src" aria-expanded="false">
-    {{data0['cctvname']}}
-  </button>
-
-
-</div>
-
-
-{% endblock %}
+      
+  </body>
+</html>

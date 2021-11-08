@@ -31,17 +31,64 @@ from utils.general import (LOGGER, apply_classifier, check_file, check_img_size,
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import load_classifier, select_device, time_sync
 
-with open('C:\projects\cctvproject\yolov5\data.json') as f:
-    data = json.load(f)
+
+
+@app.route('/test')
+def test():
+    
+    
+    return render_template('test.html')
+
+
+@app.route('/select')
+def select():
+    
+    
+    return render_template('select.html')
+
+
+
+@app.route('/')
+def main():
+    
+    
+    return render_template('main.html')
+
+
+@app.route('/cctv')
+def cctv():
+    
+    
+    return render_template('cctv.html')
+
+
+@app.route('/video')
+def video():
+    
+    #source = data[0]['cctvurl']
+    
+    # src = str(source)
+    # src = str(data[0]['cctvurl'])
+    return Response(detect(source='http://cctvsec.ktict.co.kr/4/QUTyqK9d00rhb4kslLJZ37ARoGZUzu20y61LHqqGPdJxsS1arEVVw8AmgHJwV4of3c25YO75C4p82n3YjkDnjg=='),
+                         mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+
+
+
+
+
+
+
 
 
 
 
 @torch.no_grad()
-def detect(weights=ROOT / 'cctv_v5.pt',  # model.pt path(s)
+def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         source='',  # file/dir/URL/glob, 0 for webcam
         imgsz=320,  # inference size (pixels)
-        conf_thres=0.25,  # confidence threshold
+        conf_thres=0.15,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -211,29 +258,3 @@ def detect(weights=ROOT / 'cctv_v5.pt',  # model.pt path(s)
         
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
-
-
-
-@app.route('/')
-def main():
-    
-    data_0 = data[0]
-    data_1 = data[1]
-    data_2 = data[2]
-    return render_template('main.html', data0=data_0, data1=data_1, data2=data_2)
-
-
-
-
-@app.route('/video/<string:name>', methods=['GET','POST'])
-def video(name):
-    
-    source = data[0]['cctvurl']
-    print(source)
-    # src = str(source)
-    # src = str(data[0]['cctvurl'])
-    return Response(detect(source='http://cctvsec.ktict.co.kr/4/QUTyqK9d00rhb4kslLJZ37ARoGZUzu20y61LHqqGPdJxsS1arEVVw8AmgHJwV4of3c25YO75C4p82n3YjkDnjg=='),
-                         mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-
