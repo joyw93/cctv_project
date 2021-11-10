@@ -1,22 +1,14 @@
-from flask import Flask, render_template, request, Response
-
-
-
-app = Flask(__name__)
-
-
+from flask import Flask, render_template, Response, make_response, jsonify
+from time import time
+from random import random
 import json
-import argparse
 import os
-import platform
 import sys
+from car import Car
 from pathlib import Path
-
 import cv2
-import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
-
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -31,20 +23,43 @@ from utils.general import (LOGGER, apply_classifier, check_file, check_img_size,
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import load_classifier, select_device, time_sync
 
+app = Flask(__name__)
 
 
-@app.route('/test')
-def test():
-    
-    
-    return render_template('test.html')
+
+car = Car(0)
 
 
-@app.route('/select')
-def select():
+@app.route('/live-data')
+def live_data():
     
     
-    return render_template('select.html')
+    
+    # Create a PHP array and echo it as JSON
+    data = [time() * 1000, car.num]
+    response = make_response(json.dumps(data))
+    response.content_type = 'application/json'
+    return response
+
+
+
+@app.route('/cctv/', defaults={'src': ''})
+@app.route('/cctv/<string:src>')
+def cctv(src):
+    
+    
+    return render_template('cctv.html', src=src)
+
+
+
+
+@app.route('/video/<string:src>')
+def video(src):
+    
+    source = 'http://cctvsec.ktict.co.kr/4/' + src
+    
+    return Response(detect(source=source),
+                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 
@@ -55,46 +70,27 @@ def main():
     return render_template('main.html')
 
 
-@app.route('/cctv')
-def cctv():
+
+@app.route('/test')
+def test():
     
     
-    return render_template('cctv.html')
-
-
-@app.route('/video')
-def video():
-    
-    #source = data[0]['cctvurl']
-    
-    # src = str(source)
-    # src = str(data[0]['cctvurl'])
-    return Response(detect(source='http://cctvsec.ktict.co.kr/4/QUTyqK9d00rhb4kslLJZ37ARoGZUzu20y61LHqqGPdJxsS1arEVVw8AmgHJwV4of3c25YO75C4p82n3YjkDnjg=='),
-                         mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-
-
-
-
-
-
-
+    return render_template('test.html')
 
 
 
 
 @torch.no_grad()
-def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
+def detect(weights=ROOT / 'static/cctv_v5.pt',  # model.pt path(s)
         source='',  # file/dir/URL/glob, 0 for webcam
         imgsz=320,  # inference size (pixels)
-        conf_thres=0.15,  # confidence threshold
+        conf_thres=0.20,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         view_img=False,  # show results
         save_txt=False,  # save results to *.txt
-        save_conf=False,  # save confidences in --save-txt labels
+        
         save_crop=False,  # save cropped prediction boxes
         nosave=False,  # do not save images/videos
         classes=None,  # filter by class: --class 0, or --class 0 2 3
@@ -109,8 +105,10 @@ def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         hide_labels=False,  # hide labels
         hide_conf=False,  # hide confidences
         half=False,  # use FP16 half-precision inference
-        dnn=False,  # use OpenCV DNN for ONNX inference
+        
         ):
+    
+    
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
@@ -142,10 +140,8 @@ def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         if classify:  # second-stage classifier
             modelc = load_classifier(name='resnet50', n=2)  # initialize
             modelc.load_state_dict(torch.load('resnet50.pt', map_location=device)['model']).to(device).eval()
-    elif onnx:
-        if dnn:
-            check_requirements(('opencv-python>=4.5.4',))
-            net = cv2.dnn.readNetFromONNX(w)
+    
+            
         
     
     imgsz = check_img_size(imgsz, s=stride)  # check image size
@@ -155,11 +151,11 @@ def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         view_img = check_imshow()
         cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz, stride=stride, auto=pt)
-        bs = len(dataset)  # batch_size
+        
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt)
-        bs = 1  # batch_size
-    vid_path, vid_writer = [None] * bs, [None] * bs
+        
+    
 
     # Run inference
     if pt and device.type != 'cpu':
@@ -205,10 +201,8 @@ def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
 
             p = Path(p)  # to Path
-            save_path = str(save_dir / p.name)  # img.jpg
-            txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
+                     
             s += '%gx%g ' % img.shape[2:]  # print string
-            gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             imc = im0.copy() if save_crop else im0  # for save_crop
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
             if len(det):
@@ -216,26 +210,24 @@ def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
                 # Print results
+                
                 for c in det[:, -1].unique():
-                    n = (det[:, -1] == c).sum()  # detections per class
+                    n = (det[:, -1] == 1.).sum()  # detections per class
+                    
+                    car.num  = int(n.item())                 
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-
+                
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    if save_txt:  # Write to file
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # label format
-                        with open(txt_path + '.txt', 'a') as f:
-                            f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                    
+                        
+                        
 
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
-                        if save_crop:
-                            save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
-
-            # Print time (inference-only)
+                        
             
 
             # Stream results
@@ -247,14 +239,9 @@ def detect(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
                 cv2.waitKey(1)  # 1 millisecond
 
-            
-            
-
-    # Print results
-    t = tuple(x / seen * 1E3 for x in dt)  # speeds per image
-    
-    if save_txt or save_img:
-        s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
+                  
         
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
+    
+    
