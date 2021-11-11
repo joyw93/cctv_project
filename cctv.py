@@ -28,6 +28,7 @@ app = Flask(__name__)
 
 
 car = Car(0)
+truck = Car(0)
 
 
 @app.route('/live-data')
@@ -40,6 +41,8 @@ def live_data():
     response = make_response(json.dumps(data))
     response.content_type = 'application/json'
     return response
+
+
 
 
 
@@ -71,20 +74,16 @@ def main():
 
 
 
-@app.route('/test')
-def test():
-    
-    
-    return render_template('test.html')
+
 
 
 
 
 @torch.no_grad()
-def detect(weights=ROOT / 'static/cctv_v5.pt',  # model.pt path(s)
+def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
         source='',  # file/dir/URL/glob, 0 for webcam
         imgsz=320,  # inference size (pixels)
-        conf_thres=0.20,  # confidence threshold
+        conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -203,7 +202,7 @@ def detect(weights=ROOT / 'static/cctv_v5.pt',  # model.pt path(s)
             p = Path(p)  # to Path
                      
             s += '%gx%g ' % img.shape[2:]  # print string
-            imc = im0.copy() if save_crop else im0  # for save_crop
+            
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
             if len(det):
                 # Rescale boxes from img_size to im0 size
@@ -212,9 +211,11 @@ def detect(weights=ROOT / 'static/cctv_v5.pt',  # model.pt path(s)
                 # Print results
                 
                 for c in det[:, -1].unique():
-                    n = (det[:, -1] == 1.).sum()  # detections per class
-                    
-                    car.num  = int(n.item())                 
+                    n = (det[:, -1] == 0.).sum()+(det[:, -1] == 1.).sum()  # detections per class
+                    #n2 = (det[:, -1] == 1.).sum()
+                    print(det[:, -1])
+                    car.num  = int(n.item())
+                    #truck.num = int(n2.item())                 
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
                 
                 # Write results
