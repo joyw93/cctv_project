@@ -35,6 +35,20 @@ https://youtu.be/ufnI6nOHfJ8
 ~~~
 </br>
 
-## 6. 회고 / 느낀점
+### 5.2. 딥러닝 모델(YOLO) 전이학습
+~~~python
+!cd /content/yolov5; python train.py --img 320 --batch 8 --epochs 200 --data /content/dataset_v1/data.yaml  \
+                                     --project=/content/data_v1_320 --name cctv_v1_320 --exist-ok 
+~~~
+![image](https://user-images.githubusercontent.com/48177285/151142218-0f2568ea-1cb7-4c34-95f1-e4f362a3f0e4.png)
 
-* 
+### 5.3. 실시간 그래프 생성
+~~~python
+@app.route('/live-data')
+def live_data():
+    # Create a PHP array and echo it as JSON
+    data = [time() * 1000, car.num]
+    response = make_response(json.dumps(data))
+    response.content_type = 'application/json'
+    return response
+~~~
