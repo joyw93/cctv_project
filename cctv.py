@@ -26,16 +26,12 @@ from utils.torch_utils import load_classifier, select_device, time_sync
 app = Flask(__name__)
 
 
-
 car = Car(0)
-truck = Car(0)
+
 
 
 @app.route('/live-data')
 def live_data():
-    
-    
-    
     # Create a PHP array and echo it as JSON
     data = [time() * 1000, car.num]
     response = make_response(json.dumps(data))
@@ -43,17 +39,10 @@ def live_data():
     return response
 
 
-
-
-
 @app.route('/cctv/', defaults={'src': ''})
 @app.route('/cctv/<string:src>')
 def cctv(src):
-    
-    
     return render_template('cctv.html', src=src)
-
-
 
 
 @app.route('/video/<string:src>')
@@ -65,18 +54,9 @@ def video(src):
                          mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-
 @app.route('/')
 def main():
-    
-    
     return render_template('main.html')
-
-
-
-
-
-
 
 
 @torch.no_grad()
@@ -89,7 +69,6 @@ def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         view_img=False,  # show results
         save_txt=False,  # save results to *.txt
-        
         save_crop=False,  # save cropped prediction boxes
         nosave=False,  # do not save images/videos
         classes=None,  # filter by class: --class 0, or --class 0 2 3
@@ -139,10 +118,6 @@ def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
         if classify:  # second-stage classifier
             modelc = load_classifier(name='resnet50', n=2)  # initialize
             modelc.load_state_dict(torch.load('resnet50.pt', map_location=device)['model']).to(device).eval()
-    
-            
-        
-    
     imgsz = check_img_size(imgsz, s=stride)  # check image size
 
     # Dataloader
@@ -154,8 +129,6 @@ def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt)
         
-    
-
     # Run inference
     if pt and device.type != 'cpu':
         model(torch.zeros(1, 3, *imgsz).to(device).type_as(next(model.parameters())))  # run once
@@ -177,8 +150,6 @@ def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
         if pt:
             visualize = increment_path(save_dir / Path(path).stem, mkdir=True) if visualize else False
             pred = model(img, augment=augment, visualize=visualize)[0]
-        
-        
         t3 = time_sync()
         dt[1] += t3 - t2
 
@@ -220,17 +191,11 @@ def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
                 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    
-                        
-                        
-
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
                         
-            
-
             # Stream results
             im0 = annotator.result()
             if view_img:
@@ -239,9 +204,6 @@ def detect(weights=ROOT / 'static/cctv_v1_320.pt',  # model.pt path(s)
                 yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
                 cv2.waitKey(1)  # 1 millisecond
-
-                  
-        
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
     
