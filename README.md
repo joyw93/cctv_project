@@ -18,6 +18,7 @@
 
 ## 3. UI
 ![cover](https://user-images.githubusercontent.com/48177285/141255585-cae6c8b4-a1f9-4e40-85da-4e186479b5e8.JPG)
+<img width="583" alt="image" src="https://user-images.githubusercontent.com/48177285/151139684-645fbbd3-0763-41d5-97af-a1c69bb91eee.png">
 
 
 ## 4. 시연영상
@@ -33,4 +34,4 @@ https://youtu.be/ufnI6nOHfJ8
 
 ## 6. 회고 / 느낀점
 
-* aaa
+* 
